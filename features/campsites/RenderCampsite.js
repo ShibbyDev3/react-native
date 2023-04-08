@@ -10,6 +10,7 @@ const RenderCampsite = (props) => {
   const view = useRef();
 
   const isLeftSwipe = ({ dx }) => dx < -200;
+  const isRightSwipe = ({ dx }) => dx > 200;
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -36,6 +37,10 @@ const RenderCampsite = (props) => {
           { cancelable: false }
         );
       }
+      if (isRightSwipe(gestureState)) {
+        console.log(`true`);
+        props.onShowModal();
+      }
     },
   });
 
@@ -51,7 +56,7 @@ const RenderCampsite = (props) => {
           <Text style={{ margin: 20 }}>{campsite.description}</Text>
           <View style={styles.cardRow}>
             <Icon name={props.isFavorite ? "heart" : "heart-o"} type="font-awesome" color="#f50" raised reverse onPress={() => (props.isFavorite ? console.log("Already set as a favorite") : props.markFavorite())} />
-            <Icon name="pencil" type="font-awesome" color="#5637DD" raised reverse onPress={props.onShowModal} />
+            <Icon name="pencil" type="font-awesome" color="#5637DD" raised reverse onPress={() => props.onShowModal()} />
           </View>
         </Card>
       </Animatable.View>
