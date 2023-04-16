@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as ImagePicker from "expo-image-picker";
 import { baseUrl } from "../shared/baseUrl";
 import logo from "../assets/images/logo.png";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 
 const LoginTab = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -97,7 +98,28 @@ const RegisterTab = () => {
       });
       if (capturedImage.assets) {
         console.log(capturedImage.assets[0]);
-        setImageUrl(capturedImage.assets[0].uri);
+        processImage(capturedImage.assets[0].uri);
+      }
+    }
+  };
+
+  const processImage = async (imgUri) => {
+    const processedImage = await manipulateAsync(imgUri, [{ resize: { width: 400 } }], { format: SaveFormat.PNG });
+    console.log(processedImage);
+    setImageUrl(processedImage.uri);
+  };
+
+  const getImageFromGallery = async (imgUri) => {
+    const mediaLibraryPermissions = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (mediaLibraryPermissions.status === "granted") {
+      const capturedImage = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      if (capturedImage) {
+        console.log(capturedImage.assets[0]);
+        processImage(capturedImage.assets[0].uri);
       }
     }
   };
@@ -108,6 +130,7 @@ const RegisterTab = () => {
         <View style={styles.imageContainer}>
           <Image source={{ uri: imageUrl }} loadingIndicatorSource={logo} style={styles.image} />
           <Button title="Camera" onPress={getImageFromCamera} />
+          <Button title="Gallery" onPress={getImageFromGallery} />
         </View>
         <Input placeholder="Username" leftIcon={{ type: "font-awesome", name: "user-o" }} onChangeText={(text) => setUsername(text)} value={username} containerStyle={styles.formInput} leftIconContainerStyle={styles.formIcon} />
         <Input placeholder="Password" leftIcon={{ type: "font-awesome", name: "key" }} onChangeText={(text) => setPassword(text)} value={password} containerStyle={styles.formInput} leftIconContainerStyle={styles.formIcon} />
